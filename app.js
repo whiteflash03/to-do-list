@@ -3,7 +3,12 @@ const bodyParser = require ("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
 const _ = require("lodash");
+const dotenv = require("dotenv").config();
 // const date = require(__dirname + "/date.js");
+
+const user = process.env.DB_USER;
+const password = process.env.DB_PASSWORD;
+const dbName = process.env.DB_NAME;
 
 const app = express();
 app.set("view engine", "ejs");
@@ -12,7 +17,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static ("static"))
 
 // mongodb connect
-mongoose.connect("mongodb+srv://admin-white:test123@cluster0.bz5eaxt.mongodb.net/todoListDB", {useNewUrlParser: true});
+mongoose.connect("mongodb+srv://" + user + ":" + password + "@cluster0.bz5eaxt.mongodb.net/"+ dbName, {useNewUrlParser: true});
 
 // creating schema
 const itemsSchema = new mongoose.Schema({
@@ -45,6 +50,7 @@ const listSchema = new mongoose.Schema({
 const List = mongoose.model("List" , listSchema);
 
 
+
 app.get("/", function(req , res){
 
     // const day = date.getDate();
@@ -64,9 +70,8 @@ app.get("/", function(req , res){
             res.render("list" , {listTitle : "Today", newListItems : foundItems});
         }
     });
-
-    
 });
+
 
 app.get("/:newList" ,function(req,res){
 
@@ -86,10 +91,7 @@ List.findOne({name:listTitle}, function(err, foundList){
             res.render("list" , {listTitle : foundList.name , newListItems : foundList.items});
         } 
     }
-});
-
-   
-   
+});   
 });
 
 
@@ -114,8 +116,6 @@ app.post("/" , function(req,res){
  
 });
 
-
-
 app.post("/delete" ,function(req, res){
     const checkedItem = req.body.checkbox;
     const listName = req.body.listName;
@@ -139,12 +139,7 @@ app.post("/delete" ,function(req, res){
    
 });
 
-
-
-
-
-
-app.listen(3000, function(){
+app.listen(process.env.PORT || 3000, function(){
     console.log("server is running on port 3000...");
 });
 
